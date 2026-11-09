@@ -5,14 +5,12 @@ import { Navigate, useLocation, useNavigate } from 'react-router'
 import { BrandMark, BrandName } from '@/components/layout/Brand'
 import { Button } from '@/components/ui/Button'
 import { SegmentedControl } from '@/components/ui/Controls'
-import { STATUS_HEX } from '@/components/ui/Status'
 import { APP } from '@/config/app'
-import { ENTERPRISE, STAGES } from '@/data/demo/enterprise'
+import { ENTERPRISE } from '@/data/demo/enterprise'
 import { DEMO_ACCOUNTS } from '@/data/demo/users'
-import { formatPercent } from '@/domain/format'
 import { ROLE_ACCESS } from '@/domain/types'
-import { BASELINE_RESULT } from '@/hooks/useSimulation'
 import { homePathFor, useAuthStore, type AuthResult } from '@/store/auth'
+import { LoginShowcase } from './LoginShowcase'
 
 type Mode = 'login' | 'register'
 
@@ -233,78 +231,7 @@ export default function LoginPage() {
         </p>
       </div>
 
-      <LoginVisual />
-    </div>
-  )
-}
-
-/** Графитовая мнемосхема линии: то же, что увидит пользователь внутри, без декоративных эффектов. */
-function LoginVisual() {
-  const xs = STAGES.map((_, i) => 60 + i * 96)
-  const ci = STAGES.findIndex((s) => s.id === BASELINE_RESULT.constraintStageId)
-  return (
-    <div className="relative hidden flex-col justify-between overflow-hidden bg-graphite p-12 text-graphite-ink lg:flex">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-[0.35]"
-        style={{
-          backgroundImage: 'radial-gradient(circle at 1px 1px, rgb(255 255 255 / 0.09) 1px, transparent 0)',
-          backgroundSize: '24px 24px',
-        }}
-        aria-hidden
-      />
-      <div className="relative">
-        <p className="text-2xs tracking-[0.08em] text-graphite-muted uppercase">Цифровой двойник · 3D-тур</p>
-        <p className="mt-3 max-w-[460px] text-[22px] leading-snug font-medium text-white">
-          Модель процесса, сценарии изменений и виртуальная экскурсия — в одной системе.
-        </p>
-      </div>
-
-      <svg viewBox="0 0 620 220" className="relative w-full max-w-[640px]" role="img" aria-label="Мнемосхема производственной линии из шести участков">
-        {STAGES.map((s, i) => {
-          const x = xs[i]
-          const r = BASELINE_RESULT.stages[i]
-          const color = STATUS_HEX[r.status]
-          const flagged = r.status === 'bottleneck' || r.status === 'high'
-          return (
-            <g key={s.id}>
-              {i < STAGES.length - 1 && (
-                <>
-                  <line x1={x + 34} y1={110} x2={xs[i + 1] - 34} y2={110} stroke="#3a4148" strokeWidth={1.5} />
-                  <path d={`M${xs[i + 1] - 40},106 L${xs[i + 1] - 34},110 L${xs[i + 1] - 40},114`} fill="none" stroke="#5a636c" strokeWidth={1.5} />
-                </>
-              )}
-              <rect x={x - 34} y={80} width={68} height={60} rx={5} fill="#1c2024" stroke={flagged ? color : '#3a4148'} strokeWidth={flagged ? 1.6 : 1.2} />
-              <text x={x} y={104} textAnchor="middle" fill="#7d848d" fontSize={10} fontFamily="JetBrains Mono Variable, monospace">
-                {s.code}
-              </text>
-              <text x={x} y={123} textAnchor="middle" fill="#e6e9ec" fontSize={10.5} fontFamily="Inter Variable, sans-serif">
-                {s.shortName}
-              </text>
-              <rect x={x - 22} y={150} width={44} height={3} rx={1.5} fill="#2a2f34" />
-              <rect x={x - 22} y={150} width={44 * Math.min(r.utilization, 1)} height={3} rx={1.5} fill={color} />
-            </g>
-          )
-        })}
-        <text x={xs[ci]} y={62} textAnchor="middle" fill="#e98e7d" fontSize={10} fontFamily="Inter Variable, sans-serif">
-          узкое место · {formatPercent(BASELINE_RESULT.constraintUtilization)}
-        </text>
-        <line x1={xs[ci]} y1={67} x2={xs[ci]} y2={78} stroke="#c0432d" strokeWidth={1} />
-      </svg>
-
-      <ol className="relative grid max-w-[560px] grid-cols-4 gap-4 text-xs">
-        {[
-          ['01', 'Процесс', 'этапы, ресурсы, параметры'],
-          ['02', 'Сценарий', 'нагрузка и изменения'],
-          ['03', 'Метрики', 'время, выпуск, загрузка, стоимость'],
-          ['04', '3D-тур', 'участки и точки интереса'],
-        ].map(([n, t, d]) => (
-          <li key={n} className="border-t border-white/10 pt-3">
-            <span className="font-mono text-2xs text-graphite-muted">{n}</span>
-            <p className="mt-1 font-medium text-white">{t}</p>
-            <p className="mt-0.5 text-graphite-muted">{d}</p>
-          </li>
-        ))}
-      </ol>
+      <LoginShowcase />
     </div>
   )
 }
