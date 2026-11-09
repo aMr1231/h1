@@ -1,17 +1,16 @@
 import clsx from 'clsx'
 import { ArrowDownRight, ArrowUpRight, Calculator, CircleDot, TriangleExclamationPoint } from 'lucide-react'
-import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
-import { ChartLegend, ChartTooltipBox, type RechartsTooltipProps } from '@/components/charts/ChartTooltip'
-import { AXIS_TICK, CHART } from '@/components/charts/theme'
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber'
 import { Button } from '@/components/ui/Button'
 import { Delta } from '@/components/ui/Delta'
 import { EmptyState } from '@/components/ui/Feedback'
-import { LINE_MODEL, STAGES } from '@/data/demo/enterprise'
+import { LINE_MODEL } from '@/data/demo/enterprise'
 import { describeChange } from '@/domain/conclusions'
-import { formatDateTime, formatNumber, formatPercent } from '@/domain/format'
+import { formatDateTime, formatNumber } from '@/domain/format'
 import { COMPARISON_METRICS, METRICS, compareSummaries } from '@/domain/metrics'
 import { summarize } from '@/domain/simulation/engine'
 import type { SimulationResult } from '@/domain/types'
+import { CycleDelta, LineCompare } from './LineCompare'
 
 export interface Calculation {
   result: SimulationResult
@@ -59,12 +58,6 @@ export function ResultsPanel({ base, calculation, stale, running, scenarioName, 
   const r = calculation.result
   const deltas = compareSummaries(summarize(base), summarize(r), COMPARISON_METRICS)
   const conclusions = describeChange(LINE_MODEL, base, r)
-  const chartData = STAGES.map((def, i) => ({
-    code: def.code,
-    name: def.shortName,
-    base: base.stages[i].utilization,
-    scenario: r.stages[i].utilization,
-  }))
 
   return (
     <div className={clsx('space-y-4 transition-opacity', (stale || running) && 'opacity-60')} aria-busy={running}>
@@ -101,6 +94,8 @@ export function ResultsPanel({ base, calculation, stale, running, scenarioName, 
         </ul>
       </section>
 
+      <LineCompare base={base} alt={r} runKey={calculation.ranAt} />
+
       <section aria-label="Сравнение показателей" className="overflow-hidden rounded-lg border border-line">
         <table className="w-full text-13">
           <caption className="sr-only">Базовый сценарий и изменённый сценарий</caption>
@@ -121,9 +116,13 @@ export function ResultsPanel({ base, calculation, stale, running, scenarioName, 
                     {def.short}
                   </th>
                   <td className="tnum px-2 py-2 text-right text-xs whitespace-nowrap text-muted">{def.format(d.base)}</td>
-                  <td className="tnum px-2 py-2 text-right text-xs font-medium whitespace-nowrap text-ink">{def.format(d.value)}</td>
+                  <td className="tnum px-2 py-2 text-right text-xs font-medium whitespace-nowrap text-ink">
+                    <AnimatedNumber value={d.value} format={def.format} />
+                  </td>
                   <td className="px-3 py-2 text-right">
-                    <Delta delta={d} showShare={false} />
+                    <span key={calculation.ranAt} className={d.verdict === 'same' ? undefined : 'change-flash inline-block rounded px-1'}>
+                      <Delta delta={d} showShare={false} />
+                    </span>
                   </td>
                 </tr>
               )
@@ -132,58 +131,7 @@ export function ResultsPanel({ base, calculation, stale, running, scenarioName, 
         </table>
       </section>
 
-      <section aria-labelledby="util-compare" className="rounded-lg border border-line p-3">
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          <h3 id="util-compare" className="text-13 font-semibold text-ink">
-            Загрузка участков
-          </h3>
-          <ChartLegend
-            items={[
-              { label: 'База', color: CHART.base, shape: 'rect' },
-              { label: 'Сценарий', color: CHART.primary, shape: 'rect' },
-            ]}
-          />
-        </div>
-        <div className="h-[244px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData} layout="vertical" margin={{ top: 4, right: 12, bottom: 0, left: 0 }} barGap={2} barCategoryGap="22%">
-              <CartesianGrid horizontal={false} stroke={CHART.grid} />
-              <XAxis
-                type="number"
-                domain={[0, 1]}
-                ticks={[0, 0.25, 0.5, 0.75, 1]}
-                tickFormatter={(v: number) => formatPercent(v)}
-                tick={AXIS_TICK}
-                tickLine={false}
-                axisLine={{ stroke: CHART.axis }}
-              />
-              <YAxis type="category" dataKey="code" tick={{ ...AXIS_TICK, fontFamily: 'JetBrains Mono Variable, monospace' }} tickLine={false} axisLine={false} width={40} />
-              <ReferenceLine x={0.95} stroke={CHART.crit} strokeDasharray="3 3" strokeWidth={1} />
-              <ReferenceLine x={0.85} stroke={CHART.warn} strokeDasharray="3 3" strokeWidth={1} />
-              <Tooltip
-                cursor={{ fill: 'rgb(16 24 32 / 0.04)' }}
-                content={(props) => {
-                  const { active, payload } = props as RechartsTooltipProps<(typeof chartData)[number]>
-                  const p = payload?.[0]?.payload
-                  if (!active || !p) return null
-                  return (
-                    <ChartTooltipBox
-                      title={`${p.code} ${p.name}`}
-                      rows={[
-                        { key: 'b', label: 'база', value: formatPercent(p.base, 1), color: CHART.base, shape: 'rect' },
-                        { key: 's', label: 'сценарий', value: formatPercent(p.scenario, 1), color: CHART.primary, shape: 'rect' },
-                      ]}
-                    />
-                  )
-                }}
-              />
-              <Bar dataKey="base" fill={CHART.base} radius={[0, 3, 3, 0]} maxBarSize={9} isAnimationActive={false} />
-              <Bar dataKey="scenario" fill={CHART.primary} radius={[0, 3, 3, 0]} maxBarSize={9} isAnimationActive={false} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        <p className="mt-1 text-2xs text-faint">Пунктир: 85 % — зона риска, 95 % — перегрузка.</p>
-      </section>
+      <CycleDelta base={base} alt={r} />
     </div>
   )
 }

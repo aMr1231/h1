@@ -18,6 +18,7 @@ export function MobileTabBar() {
             <NavLink
               to={item.to}
               end={item.to === '/'}
+              data-tour={item.to === '/tour' ? 'tour-nav' : undefined}
               className={({ isActive }) =>
                 clsx(
                   'flex h-full flex-col items-center justify-center gap-0.5 text-2xs font-medium',

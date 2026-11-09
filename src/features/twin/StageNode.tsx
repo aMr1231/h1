@@ -16,6 +16,8 @@ export interface StageNodeData extends Record<string, unknown> {
   layerShare: number
   isConstraint: boolean
   isSelected: boolean
+  /** Пульсация перегруженного участка (выключается при prefers-reduced-motion). */
+  pulse: boolean
   targetPosition: Position
   sourcePosition: Position
   extraSource?: Position
@@ -32,12 +34,13 @@ export function StageNode({ data }: NodeProps<StageFlowNode>) {
   return (
     <div
       className={clsx(
-        'w-[212px] cursor-pointer rounded-lg border bg-surface text-left transition-shadow',
+        'relative w-[236px] cursor-pointer rounded-lg border bg-surface text-left transition-shadow',
         s.status === 'bottleneck' ? 'border-crit/70' : s.status === 'high' ? 'border-warn-mark/70' : 'border-line-strong',
         isSelected ? 'shadow-[0_0_0_3px_var(--color-accent-line),0_8px_20px_rgb(16_24_32/0.12)]' : 'shadow-[0_1px_2px_rgb(16_24_32/0.06)] hover:shadow-[0_4px_14px_rgb(16_24_32/0.10)]',
       )}
       aria-label={`${def.code} ${def.name}. ${STATUS_META[s.status].label}, загрузка ${formatPercent(s.utilization)}`}
     >
+      {data.pulse && s.status === 'bottleneck' && <span className="twin-pulse pointer-events-none absolute -inset-px rounded-lg" aria-hidden />}
       <Handle type="target" position={data.targetPosition} className={hidden} isConnectable={false} />
       <Handle type="source" position={data.sourcePosition} className={hidden} isConnectable={false} />
       {data.extraSource && <Handle type="source" id="scrap" position={data.extraSource} className={hidden} isConnectable={false} />}
@@ -55,32 +58,24 @@ export function StageNode({ data }: NodeProps<StageFlowNode>) {
         <Icon className={clsx('mt-0.5 size-4 shrink-0', STATUS_TEXT[s.status])} aria-hidden />
       </div>
 
-      <div className="px-3 pt-2 pb-2.5">
-        <div className="flex items-baseline justify-between">
-          <span className="text-2xs text-muted">{layerDef.label}</span>
-          <span className="tnum text-[15px] font-semibold text-ink">{layerDef.format(layerDef.value(s))}</span>
+      <div className="px-3 pt-2 pb-3">
+        <div className="flex items-end justify-between gap-2">
+          <span className="pb-0.5 text-2xs text-muted">{layerDef.label}</span>
+          <span className="tnum text-[21px] leading-none font-semibold tracking-[-0.02em] text-ink">{layerDef.format(layerDef.value(s))}</span>
         </div>
-        <div className="mt-1">
+        <div className="mt-2">
           {layer === 'utilization' ? (
-            <Meter value={s.utilization} status={s.status} />
+            <Meter value={s.utilization} status={s.status} size="md" />
           ) : (
-            <div className="h-1.5 overflow-hidden rounded-full bg-sunken">
+            <div className="h-2 overflow-hidden rounded-full bg-sunken">
               <div className="h-full rounded-full bg-data-1" style={{ width: `${Math.max(layerShare * 100, 2)}%` }} />
             </div>
           )}
         </div>
-        <dl className="mt-2 grid grid-cols-2 gap-x-3 gap-y-0.5 text-2xs">
-          <dt className="text-muted">Факт / мощн.</dt>
-          <dd className="tnum text-right text-ink-2">
-            {formatNumber(s.processedPerHour, 1)} / {formatNumber(s.capacityPerHour, 1)}
-          </dd>
-          <dt className="text-muted">Операция</dt>
-          <dd className="tnum text-right text-ink-2">{formatNumber(s.processMin, 1)} мин</dd>
-          <dt className="text-muted">Ресурсы</dt>
-          <dd className="tnum truncate text-right text-ink-2" title={`${params.resources} ${plural(params.resources, def.resourceKind)}`}>
-            {params.resources} {plural(params.resources, { one: 'ед.', few: 'ед.', many: 'ед.' })}
-          </dd>
-        </dl>
+        <p className="tnum mt-2 truncate text-2xs text-muted" title={`${params.resources} ${plural(params.resources, def.resourceKind)}`}>
+          {formatNumber(s.processedPerHour, 1)} из {formatNumber(s.capacityPerHour, 1)} шт/ч · {params.resources}{' '}
+          {plural(params.resources, { one: 'ресурс', few: 'ресурса', many: 'ресурсов' })}
+        </p>
       </div>
     </div>
   )

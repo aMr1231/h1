@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/ui/Panel'
 import { HISTORY } from '@/data/demo/history'
 import { formatFullDate } from '@/domain/format'
 import { BASELINE_RESULT } from '@/hooks/useSimulation'
+import { OnboardingTour } from '@/features/onboarding/OnboardingTour'
 import { IssuesList } from './IssuesList'
 import { KpiStrip } from './KpiStrip'
 import { LineStatus } from './LineStatus'
@@ -44,7 +45,9 @@ export default function DashboardPage() {
         }
       />
 
-      <LineStatus result={result} />
+      <div data-tour="line">
+        <LineStatus result={result} />
+      </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-xs text-muted">Период истории</span>
@@ -61,7 +64,9 @@ export default function DashboardPage() {
         <span className="text-xs text-faint">рабочие дни · влияет на тренды, изменения и график</span>
       </div>
 
-      <KpiStrip result={result} history={history} />
+      <div data-tour="kpi">
+        <KpiStrip result={result} history={history} />
+      </div>
 
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
         <div className="min-w-0 space-y-4">
@@ -69,10 +74,13 @@ export default function DashboardPage() {
           <StageTable result={result} />
         </div>
         <div className="min-w-0 space-y-4">
-          <IssuesList result={result} />
+          <div data-tour="issues">
+            <IssuesList result={result} />
+          </div>
           <RecentRuns />
         </div>
       </div>
+      <OnboardingTour />
     </div>
   )
 }

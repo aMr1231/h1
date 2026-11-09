@@ -265,3 +265,39 @@
   animation: twin-flow 1.6s linear infinite;
   pointer-events: none;
 }
+
+/* Узлы живой мнемосхемы: подсветка при наведении */
+.line-node:hover .line-node-box {
+  filter: brightness(0.985);
+  stroke: var(--color-accent);
+}
+
+/* Пульсация перегруженного участка на мнемосхеме */
+@keyframes twin-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(192 67 45 / 0.38);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgb(192 67 45 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(192 67 45 / 0);
+  }
+}
+.twin-pulse {
+  animation: twin-pulse 2.2s ease-out infinite;
+}
+
+/* Короткая подсветка изменившегося значения после расчёта */
+@keyframes change-flash {
+  0%,
+  35% {
+    background-color: rgb(23 112 138 / 0.16);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.change-flash {
+  animation: change-flash 1.6s ease-out;
+}

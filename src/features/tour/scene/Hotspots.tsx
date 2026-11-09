@@ -5,7 +5,9 @@ import { useMemo } from 'react'
 import { Vector3 } from 'three'
 import { POINTS_OF_INTEREST, TOUR_ROUTE } from '@/data/demo/tour'
 import { STATUS_META } from '@/domain/status'
-import type { SimulationResult, StageStatus } from '@/domain/types'
+import { STATUS_HEX } from '@/components/ui/Status'
+import { formatPercent } from '@/domain/format'
+import type { SimulationResult } from '@/domain/types'
 
 export type HotspotElements = RefObject<Record<string, HTMLElement | null>>
 
@@ -35,12 +37,8 @@ export function AnchorProjector({ elements }: { elements: HotspotElements }) {
   return null
 }
 
-const RING: Record<StageStatus, string> = {
-  bottleneck: 'ring-crit',
-  high: 'ring-warn-mark',
-  normal: 'ring-ok',
-  idle: 'ring-idle',
-}
+/** Длина окружности кольца загрузки (r = 12,5). */
+const RING_LEN = 2 * Math.PI * 12.5
 
 interface HotspotOverlayProps {
   elements: HotspotElements
@@ -68,7 +66,7 @@ export function HotspotOverlay({ elements, result, selectedPoiId, onSelect, show
             }}
             type="button"
             onClick={() => onSelect(poi.id)}
-            aria-label={`Точка интереса ${index + 1}: ${poi.subtitle}${stage && showStatus ? `, ${STATUS_META[stage.status].label}` : ''}`}
+            aria-label={`Точка интереса ${index + 1}: ${poi.subtitle}${stage && showStatus ? `, ${STATUS_META[stage.status].label}, загрузка ${formatPercent(stage.utilization)}` : ''}`}
             aria-pressed={active}
             style={{ visibility: 'hidden' }}
             className={clsx(
@@ -77,15 +75,30 @@ export function HotspotOverlay({ elements, result, selectedPoiId, onSelect, show
               showLabels && 'pr-2.5',
             )}
           >
-            <span
-              className={clsx(
-                'flex size-6 items-center justify-center rounded-full text-2xs font-semibold text-white',
-                active ? 'bg-accent' : 'bg-graphite',
-                stage && showStatus && 'ring-2 ring-offset-1 ring-offset-surface',
-                stage && showStatus && RING[stage.status],
+            <span className="relative flex size-7 shrink-0 items-center justify-center">
+              {stage && showStatus && (
+                <svg viewBox="0 0 28 28" className="absolute inset-0 -rotate-90" aria-hidden>
+                  <circle cx="14" cy="14" r="12.5" fill="none" stroke="#e3e6ea" strokeWidth="2.5" />
+                  <circle
+                    cx="14"
+                    cy="14"
+                    r="12.5"
+                    fill="none"
+                    stroke={STATUS_HEX[stage.status]}
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeDasharray={`${Math.min(stage.utilization, 1) * RING_LEN} ${RING_LEN}`}
+                  />
+                </svg>
               )}
-            >
-              {index + 1}
+              <span
+                className={clsx(
+                  'relative flex size-[21px] items-center justify-center rounded-full text-2xs font-semibold text-white',
+                  active ? 'bg-accent' : 'bg-graphite',
+                )}
+              >
+                {index + 1}
+              </span>
             </span>
             <span className={clsx('text-xs font-medium text-ink', active || showLabels ? 'inline' : 'hidden group-hover:inline group-focus-visible:inline')}>
               {name}

@@ -1,4 +1,5 @@
-import { Database, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react'
+import { CircleQuestionMark, Database, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react'
+import { useOnboardingStore } from '@/features/onboarding/OnboardingTour'
 import { useState } from 'react'
 import { ROLE_ACCESS, ROLE_LABEL } from '@/domain/types'
 import { ChangePasswordDialog } from './ChangePasswordDialog'
@@ -13,6 +14,7 @@ export function Topbar() {
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
   const [passwordOpen, setPasswordOpen] = useState(false)
+  const startOnboarding = useOnboardingStore((s) => s.start)
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-3 md:px-5">
@@ -87,6 +89,19 @@ export function Topbar() {
                   <button
                     type="button"
                     className="mt-1 flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle"
+                    onClick={() => {
+                      close()
+                      navigate('/')
+                      window.setTimeout(startOnboarding, 350)
+                    }}
+                  >
+                    <CircleQuestionMark className="size-4 text-muted" aria-hidden /> Как пользоваться
+                  </button>
+                )}
+                {user.role === 'manager' && (
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle"
                     onClick={() => {
                       close()
                       navigate('/users')

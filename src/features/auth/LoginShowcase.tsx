@@ -1,19 +1,7 @@
-import { STATUS_HEX } from '@/components/ui/Status'
-import { ENTERPRISE, STAGES } from '@/data/demo/enterprise'
+import { LineDiagram } from '@/components/LineDiagram'
+import { ENTERPRISE } from '@/data/demo/enterprise'
 import { formatDuration, formatNumber, formatPercent, formatRub } from '@/domain/format'
-import { STATUS_META } from '@/domain/status'
-import { usePrefersReducedMotion } from '@/hooks/useMediaQuery'
 import { BASELINE_RESULT } from '@/hooks/useSimulation'
-
-/* Геометрия мнемосхемы (единицы viewBox). */
-const NODE_W = 95
-const NODE_H = 76
-const GAP = 14
-const TOP = 58
-const MID = TOP + NODE_H / 2
-const VIEW_W = STAGES.length * NODE_W + (STAGES.length - 1) * GAP
-const VIEW_H = TOP + NODE_H + 8
-const x0 = (i: number) => i * (NODE_W + GAP)
 
 const STEPS: [string, string, string][] = [
   ['01', 'Процесс', 'этапы, ресурсы, параметры'],
@@ -27,11 +15,7 @@ const STEPS: [string, string, string][] = [
  * Все значения берутся из расчёта модели — без нарисованных вручную цифр.
  */
 export function LoginShowcase() {
-  const reduced = usePrefersReducedMotion()
   const r = BASELINE_RESULT
-  const ci = STAGES.findIndex((s) => s.id === r.constraintStageId)
-  const constraint = r.stages[ci]
-  const constraintDef = STAGES[ci]
 
   const kpis = [
     { label: 'Выпуск', value: `${formatNumber(r.outputPerDay, 0)} шт/сут` },
@@ -76,84 +60,7 @@ export function LoginShowcase() {
           </div>
 
           <div className="px-5 pt-6 pb-5">
-            <svg
-              viewBox={`-2 0 ${VIEW_W + 4} ${VIEW_H}`}
-              className="w-full overflow-visible"
-              role="img"
-              aria-label={`Мнемосхема линии: ${STAGES.map((s, i) => `${s.code} ${s.name} ${formatPercent(r.stages[i].utilization)}`).join(', ')}. Перегрузка — ${constraintDef.code}.`}
-            >
-              {/* Связи и движение изделий */}
-              {STAGES.slice(0, -1).map((s, i) => {
-                const x1 = x0(i) + NODE_W
-                const x2 = x0(i + 1)
-                return (
-                  <g key={`link-${s.id}`}>
-                    <line x1={x1} y1={MID} x2={x2 - 1} y2={MID} stroke="#3a4148" strokeWidth={1.5} />
-                    <path d={`M${x2 - 6},${MID - 4} L${x2 - 1},${MID} L${x2 - 6},${MID + 4}`} fill="none" stroke="#5a636c" strokeWidth={1.5} />
-                    {!reduced &&
-                      [0, 0.8].map((delay) => (
-                        <circle key={delay} r={1.8} fill="#5fb3c7">
-                          <animateMotion dur="1.6s" begin={`${delay + i * 0.27}s`} repeatCount="indefinite" path={`M${x1},${MID} L${x2 - 7},${MID}`} />
-                          <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.85;1" dur="1.6s" begin={`${delay + i * 0.27}s`} repeatCount="indefinite" />
-                        </circle>
-                      ))}
-                  </g>
-                )
-              })}
-
-              {/* Участки */}
-              {STAGES.map((s, i) => {
-                const st = r.stages[i]
-                const color = STATUS_HEX[st.status]
-                const flagged = st.status === 'bottleneck' || st.status === 'high'
-                const x = x0(i)
-                return (
-                  <g key={s.id}>
-                    <rect
-                      x={x}
-                      y={TOP}
-                      width={NODE_W}
-                      height={NODE_H}
-                      rx={7}
-                      fill={st.status === 'bottleneck' ? '#2a1f1d' : '#20252a'}
-                      stroke={flagged ? color : '#353b42'}
-                      strokeWidth={flagged ? 1.4 : 1}
-                    />
-                    <text x={x + 10} y={TOP + 18} fill="#7d848d" fontSize={9.5} fontFamily="JetBrains Mono Variable, monospace">
-                      {s.code}
-                    </text>
-                    <circle cx={x + NODE_W - 12} cy={TOP + 15} r={3} fill={color}>
-                      <title>{STATUS_META[st.status].label}</title>
-                    </circle>
-                    <text x={x + 10} y={TOP + 38} fill="#eef0f2" fontSize={10.5} fontWeight={500} fontFamily="Inter Variable, sans-serif">
-                      {s.shortName}
-                    </text>
-                    <rect x={x + 10} y={TOP + 56} width={44} height={3} rx={1.5} fill="#353b42" />
-                    <rect x={x + 10} y={TOP + 56} width={44 * Math.min(st.utilization, 1)} height={3} rx={1.5} fill={color} />
-                    <text x={x + NODE_W - 10} y={TOP + 60} textAnchor="end" fill="#c5cad1" fontSize={10.5} fontFamily="Inter Variable, sans-serif" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {formatPercent(st.utilization)}
-                    </text>
-                  </g>
-                )
-              })}
-
-              {/* Выноска перегруженного участка */}
-              <g>
-                <line x1={x0(ci) + NODE_W / 2} y1={TOP - 12} x2={x0(ci) + NODE_W / 2} y2={TOP} stroke="#c0432d" strokeWidth={1} />
-                <rect x={x0(ci) + NODE_W / 2 - 92} y={TOP - 36} width={184} height={24} rx={12} fill="#3a201c" stroke="#c0432d" strokeOpacity={0.55} />
-                <text
-                  x={x0(ci) + NODE_W / 2}
-                  y={TOP - 20}
-                  textAnchor="middle"
-                  fill="#f2a597"
-                  fontSize={10.5}
-                  fontFamily="Inter Variable, sans-serif"
-                  style={{ fontVariantNumeric: 'tabular-nums' }}
-                >
-                  перегрузка · очередь ≈ {formatNumber(constraint.queueLength, 0)} шт
-                </text>
-              </g>
-            </svg>
+            <LineDiagram result={r} theme="dark" className="w-full overflow-visible" />
           </div>
 
           <dl className="grid grid-cols-4 divide-x divide-white/[0.06] border-t border-white/[0.06]">

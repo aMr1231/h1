@@ -24,11 +24,11 @@ import { StageNode, TerminalNode, type StageFlowNode, type TerminalFlowNode } fr
 /** Раскладка мнемосхемы «змейкой»: верхний ряд слева направо, нижний — справа налево. */
 const LAYOUT: Record<string, { x: number; y: number; target: Position; source: Position; extra?: Position }> = {
   receiving: { x: 268, y: 0, target: Position.Left, source: Position.Right },
-  preparation: { x: 572, y: 0, target: Position.Left, source: Position.Right },
-  machining: { x: 876, y: 0, target: Position.Left, source: Position.Bottom },
-  inspection: { x: 876, y: 300, target: Position.Top, source: Position.Left, extra: Position.Bottom },
-  packaging: { x: 572, y: 300, target: Position.Right, source: Position.Left },
-  shipping: { x: 268, y: 300, target: Position.Right, source: Position.Left },
+  preparation: { x: 590, y: 0, target: Position.Left, source: Position.Right },
+  machining: { x: 912, y: 0, target: Position.Left, source: Position.Bottom },
+  inspection: { x: 912, y: 280, target: Position.Top, source: Position.Left, extra: Position.Bottom },
+  packaging: { x: 590, y: 280, target: Position.Right, source: Position.Left },
+  shipping: { x: 268, y: 280, target: Position.Right, source: Position.Left },
 }
 
 const nodeTypes = { stage: StageNode, terminal: TerminalNode }
@@ -64,6 +64,7 @@ export function ProcessFlow({ result, layer, selectedStageId, onSelect }: Proces
           layerShare: layerValues[i] / maxLayer,
           isConstraint: def.id === result.constraintStageId && result.stages[i].status !== 'normal',
           isSelected: def.id === selectedStageId,
+          pulse: !reducedMotion,
           targetPosition: pos.target,
           sourcePosition: pos.source,
           extraSource: pos.extra,
@@ -78,7 +79,7 @@ export function ProcessFlow({ result, layer, selectedStageId, onSelect }: Proces
       {
         id: 'source',
         type: 'terminal',
-        position: { x: 0, y: 40 },
+        position: { x: 0, y: 34 },
         selectable: false,
         data: {
           kind: 'source',
@@ -91,7 +92,7 @@ export function ProcessFlow({ result, layer, selectedStageId, onSelect }: Proces
       {
         id: 'sink',
         type: 'terminal',
-        position: { x: 0, y: 340 },
+        position: { x: 0, y: 314 },
         selectable: false,
         data: {
           kind: 'sink',
@@ -104,7 +105,7 @@ export function ProcessFlow({ result, layer, selectedStageId, onSelect }: Proces
       {
         id: 'scrap',
         type: 'terminal',
-        position: { x: 898, y: 560 },
+        position: { x: 946, y: 520 },
         selectable: false,
         data: {
           kind: 'scrap',
@@ -167,7 +168,7 @@ export function ProcessFlow({ result, layer, selectedStageId, onSelect }: Proces
       nodeTypes={nodeTypes}
       edgeTypes={edgeTypes}
       fitView
-      fitViewOptions={{ padding: 0.12 }}
+      fitViewOptions={{ padding: 0.07 }}
       minZoom={0.35}
       maxZoom={1.75}
       nodesDraggable={false}
@@ -198,7 +199,7 @@ function FitToPanel({ panelOpen }: { panelOpen: boolean }) {
       ? mobile
         ? { top: '16px', left: '16px', right: '16px', bottom: '62%' }
         : { top: '28px', left: '28px', bottom: '28px', right: '396px' }
-      : 0.12
+      : 0.07
     const id = window.setTimeout(() => fitView({ padding, duration: first.current ? 0 : 280 }), first.current ? 60 : 0)
     first.current = false
     return () => window.clearTimeout(id)

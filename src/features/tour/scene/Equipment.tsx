@@ -46,7 +46,7 @@ export function CncMachine({ x, z, rot = 0, status, fresh }: XZ & { status: Stag
     <group position={[x, 0, z]} rotation={[0, rot, 0]}>
       {/* Станина и корпус */}
       <RBox p={[0, 0.16, 0]} s={[3.05, 0.32, 2.35]} m={MAT.machineDark} radius={0.06} />
-      <RBox p={[0, 1.47, -0.02]} s={[2.9, 2.3, 2.2]} m={MAT.machine} radius={0.14} />
+      <RBox p={[0, 1.47, -0.02]} s={[2.9, 2.3, 2.2]} m={MAT.machine} radius={0.14} outline />
       <RBox p={[0, 2.66, -0.02]} s={[2.7, 0.1, 2]} m={fresh ? MAT.accent : MAT.machineDark} radius={0.04} />
       {/* Подсвеченная рабочая зона за стеклом двери */}
       <Box p={[-0.3, 1.55, 1.07]} s={[1.5, 1.1, 0.04]} m={MAT.interior} shadow={false} />
@@ -68,7 +68,7 @@ export function CncMachine({ x, z, rot = 0, status, fresh }: XZ & { status: Stag
 export function BandSaw({ x, z, rot = 0, status }: XZ & { status: StageStatus }) {
   return (
     <group position={[x, 0, z]} rotation={[0, rot, 0]}>
-      <RBox p={[0, 0.45, 0]} s={[2.4, 0.9, 1.1]} m={MAT.machine} radius={0.07} />
+      <RBox p={[0, 0.45, 0]} s={[2.4, 0.9, 1.1]} m={MAT.machine} radius={0.07} outline />
       <Box p={[0, 0.92, 0]} s={[2.5, 0.06, 1.2]} m={MAT.machineDark} />
       <RBox p={[-0.7, 1.35, -0.2]} s={[0.3, 0.9, 0.3]} m={MAT.machineDark} radius={0.04} />
       <RBox p={[0.1, 1.75, -0.2]} s={[1.9, 0.5, 0.35]} m={MAT.accent} radius={0.08} />
@@ -198,7 +198,7 @@ export function Table({ x, z, w = 2, d = 1, rot = 0, items }: XZ & { w?: number;
 export function Cmm({ x, z, status }: XZ & { status: StageStatus }) {
   return (
     <group position={[x, 0, z]}>
-      <Box p={[0, 0.35, 0]} s={[2.6, 0.7, 1.8]} m={MAT.machineDark} />
+      <RBox p={[0, 0.35, 0]} s={[2.6, 0.7, 1.8]} m={MAT.machineDark} radius={0.05} outline />
       <Box p={[0, 0.82, 0]} s={[2.5, 0.25, 1.7]} m={MAT.granite} />
       {[-1.15, 1.15].map((dx) => (
         <Box key={dx} p={[dx, 1.65, 0]} s={[0.16, 1.4, 0.3]} m={MAT.machine} />

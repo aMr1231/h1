@@ -47,6 +47,7 @@ export function Sidebar() {
                       to={item.to}
                       end={item.to === '/'}
                       title={item.label}
+                      data-tour={item.to === '/tour' ? 'tour-nav' : undefined}
                       className={({ isActive }) =>
                         clsx(
                           'group relative flex h-9 items-center gap-2.5 rounded-md px-2.5 text-13 font-medium transition-colors',

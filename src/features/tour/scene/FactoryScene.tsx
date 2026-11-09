@@ -94,6 +94,10 @@ export function FactoryScene(props: FactorySceneProps) {
   )
 }
 
+/** Облёт при первом открытии тура в сессии: низкий ракурс сбоку → общий вид цеха. */
+let introPlayed = false
+const INTRO_FROM = { position: [-52, 18, 46] as const, target: [-6, 1, -2] as const }
+
 function CameraRig({ view, nonce, smooth, isMobile, panelOpen }: { view: CameraView | null; nonce: number; smooth: boolean; isMobile: boolean; panelOpen: boolean }) {
   const ref = useRef<CameraControls>(null)
   const first = useRef(true)
@@ -102,8 +106,19 @@ function CameraRig({ view, nonce, smooth, isMobile, panelOpen }: { view: CameraV
     const c = ref.current
     if (!c) return
     const v = view ?? OVERVIEW_VIEW
-    const animate = smooth && !first.current
+    const isFirst = first.current
+    let animate = smooth && !isFirst
     first.current = false
+    let restore: number | undefined
+    if (isFirst && !view && smooth && !introPlayed) {
+      introPlayed = true
+      void c.setLookAt(...INTRO_FROM.position, ...INTRO_FROM.target, false)
+      c.smoothTime = 1.15
+      animate = true
+      restore = window.setTimeout(() => {
+        if (ref.current) ref.current.smoothTime = 0.45
+      }, 3200)
+    }
     // На телефоне нижний лист закрывает часть экрана — отодвигаем камеру и смещаем кадр вверх.
     const k = isMobile ? 1.35 : 1
     const [px, py, pz] = v.position
@@ -113,6 +128,11 @@ function CameraRig({ view, nonce, smooth, isMobile, panelOpen }: { view: CameraV
     const offsetX = panelOpen && !isMobile && view ? 3.6 * k : 0
     const offsetY = panelOpen && isMobile ? 5 : 0
     void c.setFocalOffset(offsetX, offsetY, 0, animate)
+    return () => {
+      if (restore === undefined) return
+      window.clearTimeout(restore)
+      if (ref.current) ref.current.smoothTime = 0.45
+    }
   }, [view, nonce, smooth, isMobile, panelOpen])
 
   return (

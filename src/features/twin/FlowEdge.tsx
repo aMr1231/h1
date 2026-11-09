@@ -39,9 +39,17 @@ export function FlowEdge({ id, sourceX, sourceY, targetX, targetY, sourcePositio
         markerEnd={markerEnd}
         style={{ stroke, strokeWidth: width, strokeDasharray: data?.scrap ? '4 3' : undefined }}
       />
-      {data?.animate && !data.scrap && (
-        <path d={path} fill="none" stroke="#fff" strokeOpacity={0.85} strokeWidth={Math.max(width - 1, 1)} strokeDasharray="2 14" className="twin-flow-dash" />
-      )}
+      {data?.animate && !data.scrap &&
+        // Точки потока: скорость пропорциональна интенсивности (шт/ч), как на обзоре и экране входа.
+        [0, 0.5].map((phase) => {
+          const dur = Math.max(1.4, Math.min(3.2, 2.2 * (22 / Math.max(data.flowPerHour, 1))))
+          return (
+            <circle key={phase} r={3} fill={hot ? '#c0432d' : '#17708a'} stroke="#fff" strokeWidth={1.2} opacity={0}>
+              <animateMotion dur={`${dur}s`} begin={`${phase * dur}s`} repeatCount="indefinite" path={path} />
+              <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.12;0.88;1" dur={`${dur}s`} begin={`${phase * dur}s`} repeatCount="indefinite" />
+            </circle>
+          )
+        })}
       <EdgeLabelRenderer>
         <div
           className="nodrag nopan pointer-events-none absolute flex flex-col items-center gap-0.5"

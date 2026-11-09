@@ -20,6 +20,7 @@ import {
   Wrapper,
 } from './Equipment'
 import { FloorLabel } from './FloorLabel'
+import { ZoneHighlight } from './primitives'
 import { STAGES } from '@/data/demo/enterprise'
 
 /** Позиции обрабатывающих центров: базовые 4 в первом ряду, добавленные сценарием — во втором. */
@@ -172,7 +173,7 @@ function Zone({ stageId, selected, onSelect, children }: ZoneProps) {
           <meshStandardMaterial color={active ? '#17708a' : '#c2a24a'} roughness={0.8} />
         </mesh>
       ))}
-      {children}
+      <ZoneHighlight.Provider value={active}>{children}</ZoneHighlight.Provider>
     </group>
   )
 }
