@@ -234,13 +234,23 @@ export interface TourRoute {
   stops: string[]
 }
 
-/* ───────────── Пользователи (демо) ───────────── */
+/* ───────────── Пользователи ───────────── */
 
 export type Role = 'manager' | 'guest'
 
-export interface DemoUser {
+/** Пользователь, как его возвращает сервер авторизации (без персональных данных). */
+export interface AppUser {
+  id: number
   login: string
-  displayName: string
   role: Role
-  roleLabel: string
+}
+
+export const ROLE_LABEL: Record<Role, string> = {
+  manager: 'Руководитель',
+  guest: 'Гость экскурсии',
+}
+
+export const ROLE_ACCESS: Record<Role, string> = {
+  manager: 'Полный доступ',
+  guest: 'Только 3D-тур',
 }

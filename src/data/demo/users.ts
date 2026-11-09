@@ -1,36 +1,18 @@
 /**
- * ДЕМОНСТРАЦИОННЫЕ УЧЁТНЫЕ ЗАПИСИ.
- * Проверка выполняется в браузере и НЕ является защищённой аутентификацией.
- * В рабочей системе её заменяет серверная авторизация (см. docs/02-architecture.md).
- * Персональные данные не хранятся: учётные записи ролевые, без ФИО и контактов (152-ФЗ).
+ * Подсказки для экрана входа: демо-учётки, которые сервер создаёт при первом запуске
+ * (server/db.ts → SEED_USERS). Проверка паролей выполняется только на сервере.
+ * Отключить демо-учётки: переменная окружения TWINLINE_SEED_DEMO=0.
  */
-import type { DemoUser } from '@/domain/types'
+import type { Role } from '@/domain/types'
 
-interface DemoAccount extends DemoUser {
+export interface DemoAccountHint {
+  login: string
   password: string
+  role: Role
+  title: string
 }
 
-export const DEMO_ACCOUNTS: DemoAccount[] = [
-  {
-    login: 'manager',
-    password: 'demo',
-    displayName: 'Руководитель производства',
-    role: 'manager',
-    roleLabel: 'Полный доступ',
-  },
-  {
-    login: 'guest',
-    password: 'tour',
-    displayName: 'Гость экскурсии',
-    role: 'guest',
-    roleLabel: 'Только 3D-тур',
-  },
+export const DEMO_ACCOUNTS: DemoAccountHint[] = [
+  { login: 'manager', password: 'demo', role: 'manager', title: 'Руководитель производства' },
+  { login: 'guest', password: 'tour', role: 'guest', title: 'Гость экскурсии' },
 ]
-
-export function verifyDemoCredentials(login: string, password: string): DemoUser | null {
-  const account = DEMO_ACCOUNTS.find((a) => a.login === login.trim().toLowerCase() && a.password === password)
-  if (!account) return null
-  const { password: _omit, ...user } = account
-  void _omit
-  return user
-}

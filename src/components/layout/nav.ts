@@ -1,4 +1,4 @@
-import { ChartColumn, Cuboid, LayoutDashboard, SlidersHorizontal, Workflow, type LucideIcon } from 'lucide-react'
+import { ChartColumn, Cuboid, LayoutDashboard, SlidersHorizontal, Users, Workflow, type LucideIcon } from 'lucide-react'
 import type { Role } from '@/domain/types'
 
 export interface NavItem {
@@ -7,7 +7,9 @@ export interface NavItem {
   shortLabel: string
   icon: LucideIcon
   roles: Role[]
-  group: 'production' | 'presentation'
+  group: 'production' | 'presentation' | 'admin'
+  /** Не показывать в нижней панели телефона (доступно из меню пользователя). */
+  desktopOnly?: boolean
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -16,4 +18,5 @@ export const NAV_ITEMS: NavItem[] = [
   { to: '/scenarios', label: 'Сценарии', shortLabel: 'Сценарии', icon: SlidersHorizontal, roles: ['manager'], group: 'production' },
   { to: '/analytics', label: 'Аналитика', shortLabel: 'Аналитика', icon: ChartColumn, roles: ['manager'], group: 'production' },
   { to: '/tour', label: '3D-тур', shortLabel: '3D-тур', icon: Cuboid, roles: ['manager', 'guest'], group: 'presentation' },
+  { to: '/users', label: 'Пользователи', shortLabel: 'Доступ', icon: Users, roles: ['manager'], group: 'admin', desktopOnly: true },
 ]

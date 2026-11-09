@@ -1,4 +1,7 @@
-import { Database, LogOut, ShieldCheck } from 'lucide-react'
+import { Database, KeyRound, LogOut, ShieldCheck, Users } from 'lucide-react'
+import { useState } from 'react'
+import { ROLE_ACCESS, ROLE_LABEL } from '@/domain/types'
+import { ChangePasswordDialog } from './ChangePasswordDialog'
 import { useNavigate } from 'react-router'
 import { ENTERPRISE } from '@/data/demo/enterprise'
 import { useAuthStore } from '@/store/auth'
@@ -9,6 +12,7 @@ export function Topbar() {
   const user = useAuthStore((s) => s.user)
   const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
+  const [passwordOpen, setPasswordOpen] = useState(false)
 
   return (
     <header className="flex h-12 shrink-0 items-center justify-between gap-3 border-b border-line bg-surface px-3 md:px-5">
@@ -65,26 +69,48 @@ export function Topbar() {
                 className="flex h-8 items-center gap-2 rounded-md pr-1.5 pl-1 hover:bg-subtle"
               >
                 <span className="flex size-6 items-center justify-center rounded-[5px] bg-graphite text-2xs font-semibold text-white">
-                  {user.role === 'guest' ? 'Г' : 'Р'}
+                  {user.login.charAt(0).toUpperCase()}
                 </span>
-                <span className="hidden text-13 font-medium text-ink-2 lg:inline">{user.displayName}</span>
+                <span className="hidden text-13 font-medium text-ink-2 lg:inline">{user.login}</span>
               </button>
             )}
           >
             {(close) => (
               <>
                 <div className="border-b border-line px-3 pt-1.5 pb-2.5">
-                  <p className="text-13 font-medium text-ink">{user.displayName}</p>
+                  <p className="text-13 font-medium text-ink">{user.login}</p>
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-muted">
-                    <ShieldCheck className="size-3.5" aria-hidden /> {user.roleLabel} · демо-вход
+                    <ShieldCheck className="size-3.5" aria-hidden /> {ROLE_LABEL[user.role]} · {ROLE_ACCESS[user.role].toLowerCase()}
                   </p>
                 </div>
+                {user.role === 'manager' && (
+                  <button
+                    type="button"
+                    className="mt-1 flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle"
+                    onClick={() => {
+                      close()
+                      navigate('/users')
+                    }}
+                  >
+                    <Users className="size-4 text-muted" aria-hidden /> Пользователи
+                  </button>
+                )}
                 <button
                   type="button"
-                  className="mt-1 flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle first:mt-1"
                   onClick={() => {
                     close()
-                    logout()
+                    setPasswordOpen(true)
+                  }}
+                >
+                  <KeyRound className="size-4 text-muted" aria-hidden /> Сменить пароль
+                </button>
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 px-3 py-2 text-left text-13 text-ink-2 hover:bg-subtle"
+                  onClick={async () => {
+                    close()
+                    await logout()
                     navigate('/login', { replace: true })
                   }}
                 >
@@ -95,6 +121,7 @@ export function Topbar() {
           </Popover>
         )}
       </div>
+      <ChangePasswordDialog open={passwordOpen} onClose={() => setPasswordOpen(false)} />
     </header>
   )
 }

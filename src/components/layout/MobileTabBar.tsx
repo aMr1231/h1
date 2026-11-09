@@ -5,7 +5,7 @@ import { NAV_ITEMS } from './nav'
 
 export function MobileTabBar() {
   const role = useAuthStore((s) => s.user?.role ?? 'guest')
-  const items = NAV_ITEMS.filter((i) => i.roles.includes(role))
+  const items = NAV_ITEMS.filter((i) => i.roles.includes(role) && !i.desktopOnly)
   if (items.length < 2) return null
   return (
     <nav

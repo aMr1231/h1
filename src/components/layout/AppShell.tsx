@@ -14,7 +14,7 @@ export function AppShell() {
   const role = useAuthStore((s) => s.user?.role ?? 'guest')
   const storageRecovered = useScenarioStore((s) => s.storageRecovered)
   const acknowledgeRecovery = useScenarioStore((s) => s.acknowledgeRecovery)
-  const hasTabBar = NAV_ITEMS.filter((i) => i.roles.includes(role)).length > 1
+  const hasTabBar = NAV_ITEMS.filter((i) => i.roles.includes(role) && !i.desktopOnly).length > 1
 
   useEffect(() => {
     if (storageRecovered) {

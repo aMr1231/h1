@@ -6,12 +6,12 @@ import { useAuthStore } from '@/store/auth'
 import { BrandMark, BrandName } from './Brand'
 import { NAV_ITEMS } from './nav'
 
-const GROUP_LABEL = { production: 'Производство', presentation: 'Презентация' } as const
+const GROUP_LABEL = { production: 'Производство', presentation: 'Презентация', admin: 'Администрирование' } as const
 
 export function Sidebar() {
   const role = useAuthStore((s) => s.user?.role ?? 'guest')
   const items = NAV_ITEMS.filter((i) => i.roles.includes(role))
-  const groups = (['production', 'presentation'] as const).filter((g) => items.some((i) => i.group === g))
+  const groups = (['production', 'presentation', 'admin'] as const).filter((g) => items.some((i) => i.group === g))
 
   return (
     <nav

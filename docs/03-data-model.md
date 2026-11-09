@@ -90,7 +90,11 @@
 
 **TOUR_ROUTE / TOUR_STOP / POI / PRACTICE_CASE / MEDIA** — объекты 3D-тура: маршрут, порядок остановок, точка интереса (якорь, ракурс камеры, связанный участок, список метрик), кейс лучшей практики (метрика «до/после»), медиа (изображения/видео, необязательно).
 
-**USER / ROLE** — пользователь (логин, отображаемое имя роли), роль (`manager`, `guest`). Персональные данные не хранятся.
+**USERS** (реализовано, `server/db.ts`): `id`, `login` (уникальный), `role` (`manager` / `guest`), `password_hash` (scrypt), `created_at`.
+
+**SESSIONS** (реализовано): `token_hash` (SHA-256 токена, PK), `user_id` → USERS (каскадное удаление), `created_at`, `expires_at`.
+
+ФИО, e-mail и телефоны не хранятся.
 
 ## 3.2. ER-диаграмма
 
@@ -113,6 +117,7 @@ erDiagram
   POI ||--o| PRACTICE_CASE : "иллюстрирует"
   POI ||--o{ MEDIA : "содержит"
   ROLE ||--o{ USER : "назначена"
+  USER ||--o{ SESSION : "входит"
   USER ||--o{ SCENARIO : "автор"
 
   ENTERPRISE {
@@ -205,8 +210,16 @@ erDiagram
     string alt
   }
   USER {
-    string login PK
+    int id PK
+    string login
     string role_id FK
+    string password_hash
+    datetime created_at
+  }
+  SESSION {
+    string token_hash PK
+    int user_id FK
+    datetime expires_at
   }
   ROLE {
     string id PK

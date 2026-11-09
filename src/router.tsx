@@ -74,6 +74,19 @@ export const router = createBrowserRouter([
             },
           },
           {
+            path: 'users',
+            lazy: async () => {
+              const { default: UsersPage } = await import('@/features/users/UsersPage')
+              return {
+                element: (
+                  <RequireAuth roles={['manager']}>
+                    <UsersPage />
+                  </RequireAuth>
+                ),
+              }
+            },
+          },
+          {
             path: 'tour',
             lazy: async () => {
               const { default: TourPage } = await import('@/features/tour/TourPage')
