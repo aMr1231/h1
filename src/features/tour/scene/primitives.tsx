@@ -1,4 +1,6 @@
+import { RoundedBox } from '@react-three/drei'
 import type { Material } from 'three'
+/* Примитивы низкополигональной сцены: бокс, цилиндр, скруглённый бокс. */
 import type { Vec3 } from '@/domain/types'
 
 interface BoxProps {
@@ -34,5 +36,16 @@ export function Cyl({ p, radius, height, m, r, segments = 16 }: CylProps) {
     <mesh position={p} rotation={r} material={m} castShadow receiveShadow>
       <cylinderGeometry args={[radius, radius, height, segments]} />
     </mesh>
+  )
+}
+
+interface RBoxProps extends BoxProps {
+  radius?: number
+}
+
+/** Скруглённый корпус (станки, шкафы) — мягкие блики окружения на рёбрах. */
+export function RBox({ p, s, m, r, radius = 0.08, shadow = true }: RBoxProps) {
+  return (
+    <RoundedBox args={s} radius={Math.min(radius, ...s.map((v) => v / 2 - 0.001))} smoothness={3} position={p} rotation={r} material={m} castShadow={shadow} receiveShadow />
   )
 }

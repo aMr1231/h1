@@ -1,6 +1,6 @@
 import type { StageStatus } from '@/domain/types'
 import { MAT } from './materials'
-import { Box, Cyl } from './primitives'
+import { Box, Cyl, RBox } from './primitives'
 
 type XZ = { x: number; z: number; rot?: number }
 
@@ -22,18 +22,20 @@ export function SignalTower({ x, y, z, status }: { x: number; y: number; z: numb
         const on = s === active
         return (
           <mesh key={s} position={[0, 0.58 + (2 - i) * 0.17, 0]}>
-            <cylinderGeometry args={[0.075, 0.075, 0.15, 12]} />
+            <cylinderGeometry args={[0.075, 0.075, 0.15, 16]} />
             <meshStandardMaterial
               color={on ? LIGHT[s] : '#59616a'}
               emissive={on ? LIGHT[s] : '#000000'}
-              emissiveIntensity={on ? 1.6 : 0}
-              roughness={0.4}
+              emissiveIntensity={on ? 2.4 : 0}
+              roughness={0.3}
               transparent={!on}
-              opacity={on ? 1 : 0.55}
+              opacity={on ? 1 : 0.5}
+              toneMapped={!on}
             />
           </mesh>
         )
       })}
+      <Cyl p={[0, 1.13, 0]} radius={0.08} height={0.04} m={MAT.machineDark} segments={16} />
     </group>
   )
 }
@@ -42,15 +44,23 @@ export function SignalTower({ x, y, z, status }: { x: number; y: number; z: numb
 export function CncMachine({ x, z, rot = 0, status, fresh }: XZ & { status: StageStatus; fresh?: boolean }) {
   return (
     <group position={[x, 0, z]} rotation={[0, rot, 0]}>
-      <Box p={[0, 0.15, 0]} s={[3, 0.3, 2.3]} m={MAT.machineDark} />
-      <Box p={[0, 1.45, 0]} s={[2.9, 2.3, 2.2]} m={MAT.machine} />
-      <Box p={[0, 2.62, 0]} s={[2.95, 0.08, 2.25]} m={fresh ? MAT.accent : MAT.machineDark} />
-      <Box p={[-0.25, 1.55, 1.11]} s={[1.5, 1.1, 0.04]} m={MAT.glassDark} shadow={false} />
-      <Box p={[-0.25, 0.75, 1.12]} s={[2.1, 0.12, 0.03]} m={MAT.accent} shadow={false} />
-      <Box p={[1.15, 1.6, 1.25]} s={[0.45, 0.75, 0.22]} m={MAT.machineDark} />
-      <Box p={[1.15, 1.7, 1.37]} s={[0.32, 0.38, 0.02]} m={MAT.monitor} shadow={false} />
-      <Box p={[0, 0.35, -1.45]} s={[1.6, 0.5, 0.6]} m={MAT.steel} />
-      <SignalTower x={-1.25} y={2.66} z={-0.85} status={status} />
+      {/* Станина и корпус */}
+      <RBox p={[0, 0.16, 0]} s={[3.05, 0.32, 2.35]} m={MAT.machineDark} radius={0.06} />
+      <RBox p={[0, 1.47, -0.02]} s={[2.9, 2.3, 2.2]} m={MAT.machine} radius={0.14} />
+      <RBox p={[0, 2.66, -0.02]} s={[2.7, 0.1, 2]} m={fresh ? MAT.accent : MAT.machineDark} radius={0.04} />
+      {/* Подсвеченная рабочая зона за стеклом двери */}
+      <Box p={[-0.3, 1.55, 1.07]} s={[1.5, 1.1, 0.04]} m={MAT.interior} shadow={false} />
+      <Box p={[-0.3, 1.55, 1.1]} s={[1.56, 1.16, 0.02]} m={MAT.glass} shadow={false} />
+      <Box p={[-0.3, 2.14, 1.1]} s={[1.6, 0.05, 0.05]} m={MAT.machineDark} shadow={false} />
+      <Box p={[-0.3, 0.96, 1.1]} s={[1.6, 0.05, 0.05]} m={MAT.machineDark} shadow={false} />
+      <Box p={[0.5, 1.55, 1.13]} s={[0.05, 0.6, 0.06]} m={MAT.steel} shadow={false} />
+      <Box p={[-0.3, 0.72, 1.09]} s={[2.2, 0.1, 0.03]} m={MAT.accent} shadow={false} />
+      {/* Пульт ЧПУ с экраном */}
+      <RBox p={[1.2, 1.65, 1.24]} s={[0.5, 0.82, 0.24]} m={MAT.machineDark} radius={0.04} />
+      <Box p={[1.2, 1.76, 1.37]} s={[0.36, 0.4, 0.02]} m={MAT.screen} shadow={false} />
+      {/* Конвейер стружки */}
+      <RBox p={[0, 0.38, -1.48]} s={[1.6, 0.52, 0.62]} m={MAT.steel} radius={0.05} />
+      <SignalTower x={-1.25} y={2.71} z={-0.85} status={status} />
     </group>
   )
 }
@@ -58,13 +68,33 @@ export function CncMachine({ x, z, rot = 0, status, fresh }: XZ & { status: Stag
 export function BandSaw({ x, z, rot = 0, status }: XZ & { status: StageStatus }) {
   return (
     <group position={[x, 0, z]} rotation={[0, rot, 0]}>
-      <Box p={[0, 0.45, 0]} s={[2.4, 0.9, 1.1]} m={MAT.machine} />
+      <RBox p={[0, 0.45, 0]} s={[2.4, 0.9, 1.1]} m={MAT.machine} radius={0.07} />
       <Box p={[0, 0.92, 0]} s={[2.5, 0.06, 1.2]} m={MAT.machineDark} />
-      <Box p={[-0.7, 1.35, -0.2]} s={[0.3, 0.9, 0.3]} m={MAT.machineDark} />
-      <Box p={[0.1, 1.75, -0.2]} s={[1.9, 0.5, 0.35]} m={MAT.accent} />
+      <RBox p={[-0.7, 1.35, -0.2]} s={[0.3, 0.9, 0.3]} m={MAT.machineDark} radius={0.04} />
+      <RBox p={[0.1, 1.75, -0.2]} s={[1.9, 0.5, 0.35]} m={MAT.accent} radius={0.08} />
       <Box p={[0.1, 1.3, -0.2]} s={[1.6, 0.04, 0.05]} m={MAT.steel} shadow={false} />
       <Box p={[1.55, 0.5, 0]} s={[0.7, 0.2, 0.9]} m={MAT.steel} />
       <SignalTower x={-1.05} y={0.95} z={0.4} status={status} />
+    </group>
+  )
+}
+
+/** Условная фигура оператора (для масштаба сцены): спецодежда, сигнальный жилет, каска. */
+export function Worker({ x, z, rot = 0 }: XZ) {
+  return (
+    <group position={[x, 0, z]} rotation={[0, rot, 0]}>
+      {[-0.11, 0.11].map((dx) => (
+        <Cyl key={dx} p={[dx, 0.42, 0]} radius={0.085} height={0.84} m={MAT.workwear} segments={10} />
+      ))}
+      <mesh position={[0, 1.18, 0]} material={MAT.hivis} castShadow>
+        <capsuleGeometry args={[0.22, 0.45, 6, 12]} />
+      </mesh>
+      <mesh position={[0, 1.68, 0]} material={MAT.skin} castShadow>
+        <sphereGeometry args={[0.13, 16, 12]} />
+      </mesh>
+      <mesh position={[0, 1.75, 0]} material={MAT.helmet} castShadow>
+        <sphereGeometry args={[0.15, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2]} />
+      </mesh>
     </group>
   )
 }

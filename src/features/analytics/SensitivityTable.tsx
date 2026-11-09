@@ -12,7 +12,7 @@ import { resourceSensitivity } from '@/domain/simulation/sensitivity'
 import { STATUS_SEVERITY } from '@/domain/status'
 import type { SimulationResult } from '@/domain/types'
 
-/** Ранжирование узких мест и эффект ±1 ресурса по каждому участку (перерасчёт модели). */
+/** Ранжирование перегруженных участков и эффект ±1 ресурса по каждому участку (перерасчёт модели). */
 export function SensitivityTable({ result, highlight, scenarioId }: { result: SimulationResult; highlight: string | null; scenarioId: string }) {
   const rows = useMemo(() => resourceSensitivity(LINE_MODEL, result.params), [result.params])
   const ranked = [...STAGES]
@@ -21,13 +21,13 @@ export function SensitivityTable({ result, highlight, scenarioId }: { result: Si
 
   return (
     <Panel
-      title="Узкие места и чувствительность"
+      title="Перегрузки и чувствительность"
       subtitle="Участки ранжированы по тяжести; эффект рассчитан перерасчётом линии с изменённым числом ресурсов"
       flush
     >
       <div className="scrollbar-thin overflow-x-auto">
         <table className="w-full min-w-[880px] text-13">
-          <caption className="sr-only">Узкие места и анализ чувствительности</caption>
+          <caption className="sr-only">Перегрузки и анализ чувствительности</caption>
           <thead>
             <tr className="border-b border-line bg-subtle/70 text-left text-xs text-muted">
               <th scope="col" className="px-4 py-2 font-medium">#</th>

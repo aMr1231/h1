@@ -76,8 +76,8 @@ export const METRICS: Record<MetricKey, MetricDefinition> = {
   constraintUtilization: {
     key: 'constraintUtilization',
     short: 'Загрузка огранич.',
-    label: 'Загрузка узкого места',
-    hint: 'Максимальная загрузка участка. Выше 95 % — очередь и риск недовыпуска',
+    label: 'Загрузка ограничения',
+    hint: 'Загрузка самого нагруженного участка (ограничения линии). Выше 95 % — перегрузка, очередь и риск недовыпуска',
     direction: 'lower',
     format: (v) => formatPercent(v, 1),
     formatDelta: pp,

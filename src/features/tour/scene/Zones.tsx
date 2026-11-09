@@ -16,8 +16,11 @@ import {
   Table,
   ToolCabinet,
   Truck,
+  Worker,
   Wrapper,
 } from './Equipment'
+import { FloorLabel } from './FloorLabel'
+import { STAGES } from '@/data/demo/enterprise'
 
 /** Позиции обрабатывающих центров: базовые 4 в первом ряду, добавленные сценарием — во втором. */
 const CNC_SLOTS: [number, number][] = [
@@ -31,6 +34,18 @@ const CNC_SLOTS: [number, number][] = [
   [6.1, 0.2],
 ]
 const BASE_CNC = 4
+
+/** Рабочие места операторов: x, z, поворот. */
+const WORKERS: [number, number, number][] = [
+  [-26, -1.25, Math.PI],
+  [-17.2, -5.35, Math.PI],
+  [-5, -5.15, Math.PI],
+  [3.2, -5.15, Math.PI],
+  [16.6, -3.05, Math.PI],
+  [21.6, -5.4, Math.PI],
+  [25.4, -5.4, Math.PI],
+  [31, -4.5, Math.PI],
+]
 
 interface ZonesProps {
   result: SimulationResult
@@ -98,6 +113,17 @@ export function Zones({ result, selectedStageId, onSelectStage }: ZonesProps) {
         <Forklift x={30.5} z={1.5} rot={-Math.PI / 2} />
       </Zone>
 
+      {/* Операторы на рабочих местах — для масштаба */}
+      {WORKERS.map(([x, z, rot], i) => (
+        <Worker key={i} x={x} z={z} rot={rot} />
+      ))}
+
+      {/* Надписи участков на полу */}
+      {ZONES.map((zone) => {
+        const def = STAGES.find((s) => s.id === zone.stageId)!
+        return <FloorLabel key={zone.stageId} code={def.code} name={def.shortName} x={zone.center[0]} z={5.6} width={Math.min(zone.size[0] - 1.6, 6)} />
+      })}
+
       {/* Транспорт у ворот приёмки и отгрузки */}
       <Truck x={-41.5} z={6} rot={0} />
       <Truck x={41.5} z={6} rot={Math.PI} />
@@ -138,7 +164,7 @@ function Zone({ stageId, selected, onSelect, children }: ZoneProps) {
       {/* Подложка зоны и разметка границ */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[cx, 0.006, cz]} receiveShadow>
         <planeGeometry args={[w - 0.4, d]} />
-        <meshStandardMaterial color={active ? '#cfe2e8' : '#dadee2'} roughness={0.95} />
+        <meshStandardMaterial color={active ? '#c3dde6' : '#c8ced4'} roughness={0.5} />
       </mesh>
       {[-1, 1].map((side) => (
         <mesh key={side} rotation={[-Math.PI / 2, 0, 0]} position={[cx + side * (w / 2 - 0.25), 0.01, cz]}>

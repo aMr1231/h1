@@ -9,13 +9,13 @@ import { buildInsights } from '@/domain/insights'
 import type { SimulationResult } from '@/domain/types'
 import { CircleCheck } from 'lucide-react'
 
-/** Узкие места и простои с рекомендациями, рассчитанными перерасчётом модели. */
+/** Перегрузки и простои с рекомендациями, рассчитанными перерасчётом модели. */
 export function IssuesList({ result }: { result: SimulationResult }) {
   const insights = useMemo(() => buildInsights(LINE_MODEL, result.params, result), [result])
 
   return (
     <Panel
-      title="Узкие места и резервы"
+      title="Перегрузки и резервы"
       subtitle="Рекомендации рассчитаны моделью: ±1 ресурс на участке"
       flush
       className="flex flex-col"

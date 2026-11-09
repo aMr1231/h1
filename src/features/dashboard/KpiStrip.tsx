@@ -83,7 +83,7 @@ export function KpiStrip({ result, history }: KpiStripProps) {
     },
     {
       key: 'bottlenecks',
-      label: 'Узкие места',
+      label: 'Участки с перегрузкой',
       value: String(result.bottleneckCount),
       sub: (
         <>

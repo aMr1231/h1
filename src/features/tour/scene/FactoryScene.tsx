@@ -1,6 +1,8 @@
 import { CameraControls, PerformanceMonitor } from '@react-three/drei'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { useEffect, useRef, useState } from 'react'
+import { PMREMGenerator } from 'three'
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
 import { OVERVIEW_VIEW } from '@/data/demo/tour'
 import type { CameraView, SimulationResult } from '@/domain/types'
 import { FlowItems } from './FlowItems'
@@ -44,14 +46,16 @@ export function FactoryScene(props: FactorySceneProps) {
       aria-label="Интерактивная 3D-модель цеха"
       role="img"
     >
-      <color attach="background" args={['#e9ecef']} />
-      <fog attach="fog" args={['#e9ecef', 90, 190]} />
+      <color attach="background" args={['#e4e8ec']} />
+      <fog attach="fog" args={['#e4e8ec', 95, 200]} />
+      <StudioEnvironment />
       <PerformanceMonitor onDecline={() => setDpr(1)} onIncline={() => setDpr(isMobile ? 1.25 : 1.75)} />
 
-      <hemisphereLight args={['#ffffff', '#b9c0c7', 1.25]} />
+      <hemisphereLight args={['#ffffff', '#aab2ba', 0.65]} />
       <directionalLight
         position={[22, 42, 18]}
-        intensity={1.7}
+        intensity={2.3}
+        color="#fff5e8"
         castShadow={!isMobile}
         shadow-mapSize={[2048, 2048]}
         shadow-camera-left={-42}
@@ -61,8 +65,10 @@ export function FactoryScene(props: FactorySceneProps) {
         shadow-camera-near={1}
         shadow-camera-far={120}
         shadow-bias={-0.0004}
+        shadow-normalBias={0.02}
+        shadow-radius={3}
       />
-      <directionalLight position={[-30, 20, -10]} intensity={0.35} />
+      <directionalLight position={[-30, 20, -10]} intensity={0.45} color="#dbe6ff" />
 
       <Hall />
       <Zones result={props.result} selectedStageId={props.selectedStageId} onSelectStage={props.onSelectStage} />
@@ -122,4 +128,26 @@ function CameraRig({ view, nonce, smooth, isMobile, panelOpen }: { view: CameraV
       draggingSmoothTime={0.12}
     />
   )
+}
+
+/**
+ * Процедурное студийное окружение (RoomEnvironment): мягкие отражения на металле, стекле и полу.
+ * Генерируется в браузере — без загрузки HDR-файлов из сети.
+ */
+function StudioEnvironment() {
+  const { gl, scene } = useThree()
+  useEffect(() => {
+    const pmrem = new PMREMGenerator(gl)
+    const room = new RoomEnvironment()
+    const env = pmrem.fromScene(room, 0.04).texture
+    scene.environment = env
+    scene.environmentIntensity = 0.55
+    return () => {
+      scene.environment = null
+      env.dispose()
+      pmrem.dispose()
+      room.dispose()
+    }
+  }, [gl, scene])
+  return null
 }

@@ -66,9 +66,9 @@ export function describeChange(model: LineModel, base: SimulationResult, alt: Si
   }
 
   if (alt.bottleneckCount === 0 && base.bottleneckCount > 0) {
-    out.push({ tone: 'better', text: 'Узких мест (загрузка ≥ 95 %) не остаётся.' })
+    out.push({ tone: 'better', text: 'Перегруженных участков (загрузка ≥ 95 %) не остаётся.' })
   } else if (alt.bottleneckCount > base.bottleneckCount) {
-    out.push({ tone: 'worse', text: `Узких мест становится больше: ${base.bottleneckCount} → ${alt.bottleneckCount}.` })
+    out.push({ tone: 'worse', text: `Перегруженных участков становится больше: ${base.bottleneckCount} → ${alt.bottleneckCount}.` })
   }
   return out
 }

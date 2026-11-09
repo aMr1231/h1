@@ -10,7 +10,7 @@ export function classifyUtilization(utilization: number, saturated = false): Sta
 
 export const STATUS_META: Record<StageStatus, { label: string; short: string; description: string }> = {
   bottleneck: {
-    label: 'Узкое место',
+    label: 'Перегрузка',
     short: 'Перегрузка',
     description: 'Загрузка ≥ 95 % или поступление выше мощности: растут очередь и время цикла.',
   },

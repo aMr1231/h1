@@ -182,7 +182,7 @@ export function ResultsPanel({ base, calculation, stale, running, scenarioName, 
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <p className="mt-1 text-2xs text-faint">Пунктир: 85 % — зона риска, 95 % — узкое место.</p>
+        <p className="mt-1 text-2xs text-faint">Пунктир: 85 % — зона риска, 95 % — перегрузка.</p>
       </section>
     </div>
   )

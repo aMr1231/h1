@@ -1,6 +1,7 @@
 import { useFrame } from '@react-three/fiber'
-import { useLayoutEffect, useMemo, useRef } from 'react'
-import { Color, InstancedMesh, Object3D } from 'three'
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { Color, InstancedMesh, MeshStandardMaterial, Object3D } from 'three'
+import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
 import { FLOW_PATH } from '@/data/demo/tour'
 
 interface FlowItemsProps {
@@ -22,6 +23,12 @@ const BOXED = new Color('#c9a46c')
 export function FlowItems({ speedRatio, paused, count = 18 }: FlowItemsProps) {
   const ref = useRef<InstancedMesh>(null)
   const dummy = useMemo(() => new Object3D(), [])
+  const geometry = useMemo(() => new RoundedBoxGeometry(0.5, 0.42, 0.42, 3, 0.06), [])
+  const material = useMemo(() => new MeshStandardMaterial({ roughness: 0.35, metalness: 0.55 }), [])
+  useEffect(() => () => {
+    geometry.dispose()
+    material.dispose()
+  }, [geometry, material])
   const [start, end] = [FLOW_PATH[0][0], FLOW_PATH[FLOW_PATH.length - 1][0]]
   const y = FLOW_PATH[0][1]
   const z = FLOW_PATH[0][2]
@@ -55,9 +62,6 @@ export function FlowItems({ speedRatio, paused, count = 18 }: FlowItemsProps) {
   })
 
   return (
-    <instancedMesh ref={ref} args={[undefined, undefined, count]} castShadow>
-      <boxGeometry args={[0.5, 0.42, 0.42]} />
-      <meshStandardMaterial roughness={0.6} metalness={0.25} />
-    </instancedMesh>
+    <instancedMesh ref={ref} args={[geometry, material, count]} castShadow />
   )
 }

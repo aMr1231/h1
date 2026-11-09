@@ -61,7 +61,7 @@ export function LoginShowcase() {
             Модель процесса, сценарии изменений и виртуальная экскурсия — в одной системе
           </h2>
           <p className="mt-3 max-w-[520px] text-sm leading-relaxed text-graphite-muted">
-            Найдите узкое место, проверьте решение на модели и покажите результат в 3D-туре — на одних и тех же данных.
+            Найдите перегруженный участок, проверьте решение на модели и покажите результат в 3D-туре — на одних и тех же данных.
           </p>
         </header>
 
@@ -80,7 +80,7 @@ export function LoginShowcase() {
               viewBox={`-2 0 ${VIEW_W + 4} ${VIEW_H}`}
               className="w-full overflow-visible"
               role="img"
-              aria-label={`Мнемосхема линии: ${STAGES.map((s, i) => `${s.code} ${s.name} ${formatPercent(r.stages[i].utilization)}`).join(', ')}. Узкое место — ${constraintDef.code}.`}
+              aria-label={`Мнемосхема линии: ${STAGES.map((s, i) => `${s.code} ${s.name} ${formatPercent(r.stages[i].utilization)}`).join(', ')}. Перегрузка — ${constraintDef.code}.`}
             >
               {/* Связи и движение изделий */}
               {STAGES.slice(0, -1).map((s, i) => {
@@ -137,7 +137,7 @@ export function LoginShowcase() {
                 )
               })}
 
-              {/* Выноска узкого места */}
+              {/* Выноска перегруженного участка */}
               <g>
                 <line x1={x0(ci) + NODE_W / 2} y1={TOP - 12} x2={x0(ci) + NODE_W / 2} y2={TOP} stroke="#c0432d" strokeWidth={1} />
                 <rect x={x0(ci) + NODE_W / 2 - 92} y={TOP - 36} width={184} height={24} rx={12} fill="#3a201c" stroke="#c0432d" strokeOpacity={0.55} />
@@ -150,7 +150,7 @@ export function LoginShowcase() {
                   fontFamily="Inter Variable, sans-serif"
                   style={{ fontVariantNumeric: 'tabular-nums' }}
                 >
-                  узкое место · очередь ≈ {formatNumber(constraint.queueLength, 0)} шт
+                  перегрузка · очередь ≈ {formatNumber(constraint.queueLength, 0)} шт
                 </text>
               </g>
             </svg>
